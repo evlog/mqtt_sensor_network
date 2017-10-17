@@ -1,1 +1,1 @@
-# IoT-thesis
+IoT-thesis project code repository.
