@@ -5,8 +5,8 @@
     Author: Evangelos Logaras
     Date created: 25/10/2017
     Date last modified: 25/10/2017
-	
-IoT node configuration XML file.
+    
+IoT network node configuration XML file.
 -->
 
 <nodeConfiguration
@@ -16,42 +16,42 @@ xsi:schemaLocation="https://www.w3schools.com/xml/note.xsd">
 
   <nodeInfo>
     <ID>SN</ID>
-	<hardwareSetup>
-	  <platform>Raspberry</platform>
-	  <version>Pi3</version>
-	  <CPU>1.2 GHz 64/32-bit quad-core ARM Cortex-A53</CPU>
-	</hardwareSetup>
-	
-	<softwareSetup>
-	  <OS>
-	    <name>Raspbian GNU/Linux 8.0 (jessie)</name>
-	    <version>8.0</version>
-	  </OS>
-	</softwareSetup>
-	
+    <hardwareSetup>
+      <platform>Raspberry</platform>
+      <version>Pi3</version>
+      <CPU>1.2 GHz 64/32-bit quad-core ARM Cortex-A53</CPU>
+    </hardwareSetup>
+    
+    <softwareSetup>
+      <OS>
+        <name>Raspbian GNU/Linux 8.0 (jessie)</name>
+        <version>8.0</version>
+      </OS>
+    </softwareSetup>
+    
     <networkSetup>
-	  <MACAddress>1f:2f:3f:4f:5f:6f</MACAddress>
-	  <MQTTSetup>
-	    <protocolVersion>v3.1</protocolVersion>
-		<credentials>
-		  <userName>IoT_thesis</userName>
-		  <password>1234#2017</password>
-		</credentials>
-		<topics>
-		  <subscribe>subTopic1,subTopic2,subTopic3</subscribe>
-		  <publish>pubTopic1,pubTopic2,pubTopic3</publish>
-		</topics>
-	  </MQTTSetup>
-	</networkSetup>
+      <MACAddress>1f:2f:3f:4f:5f:6f</MACAddress>
+      <MQTTSetup>
+        <protocolVersion>v3.1</protocolVersion>
+        <credentials>
+          <userName>IoT_thesis</userName>
+          <password>1234#2017</password>
+        </credentials>
+        <topics>
+          <subscribe>subTopic1,subTopic2,subTopic3</subscribe>
+          <publish>pubTopic1,pubTopic2,pubTopic3</publish>
+        </topics>
+      </MQTTSetup>
+    </networkSetup>
   </nodeInfo>
 
   <nodeLocation>
     <country>Greece</country>
-	<districtState>Samos</districtState>
-	<city>Karlovasi</city>
-	<areaDescription>Aegean University Campus</areaDescription>
-	<gpsLongtitude>26.7049</gpsLongtitude>
-	<gpsLattitude>37.79209</gpsLattitude>
+    <districtState>Samos</districtState>
+    <city>Karlovasi</city>
+    <areaDescription>Aegean University Campus</areaDescription>
+    <gpsLongtitude>26.7049</gpsLongtitude>
+    <gpsLattitude>37.79209</gpsLattitude>
   </nodeLocation>
   
     
