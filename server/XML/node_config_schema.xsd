@@ -5,7 +5,7 @@
     Author: Evangelos Logaras
     Date created: 25/10/2017
     Date last modified: 25/10/2017
-	
+    
 IoT network node configuration XML schema file.
 -->
 
@@ -18,114 +18,114 @@ elementFormDefault="qualified">
   <xs:element name="nodeConfiguration">
     <xs:complexType>
       <xs:sequence>
-	    <!--##########-->
+        <!--##########-->
         <xs:element name="nodeInfo">
-	      <xs:complexType>
-		    <xs:sequence>
-			  <!--##########-->
-		      <xs:element name="ID" type="xs:string"/>
-			  <!--##########-->
-			  <xs:element name="hardwareSetup">
-				<xs:complexType>
-				  <xs:sequence>
-					<!--##########-->
-				    <xs:element name="platform" type="xs:string"/>
-					<!--##########-->
-					<xs:element name="version" type="xs:string"/>
-					<!--##########-->
-					<xs:element name="CPU" type="xs:string"/>
-					<!--##########-->
-				  </xs:sequence>
-				</xs:complexType>
-			  </xs:element>
-			  <!--##########-->
-			  <xs:element name="softwareSetup">
-				<xs:complexType>
-				  <xs:sequence>
-				    <xs:element name="OS">
-					  <xs:complexType>
-					    <xs:sequence>
-				          <!--##########-->
-				          <xs:element name="name" type="xs:string"/>
-					      <!--##########-->
-					      <xs:element name="version" type="xs:string"/>
-					      <!--##########-->
-						</xs:sequence>
-					  </xs:complexType>
-					</xs:element>
-				  </xs:sequence>
-				</xs:complexType>
-			  </xs:element>
-			  <!--##########-->			  
-			  <xs:element name="networkSetup">
-				<xs:complexType>
-				  <xs:sequence>
-				    <!--##########-->
-				    <xs:element name="MACAddress" type="xs:string"/>
-					<!--##########-->
-					<xs:element name="MQTTSetup">
-				      <xs:complexType>
-				        <xs:sequence>
-						  <!--##########-->
-						  <xs:element name="protocolVersion" type="xs:string"/>
-						  <!--##########-->
-						  <xs:element name="credentials">
-						    <xs:complexType>
-							  <xs:sequence>
-							    <!--##########-->
-							    <xs:element name="userName" type="xs:string"/>
-								<!--##########-->
-								<xs:element name="password" type="xs:string"/>
-								<!--##########-->
-				              </xs:sequence>
-				            </xs:complexType>
-						  </xs:element>
-						  <!--##########-->
-						  <xs:element name="topics">
-						    <xs:complexType>
-							  <!--##########-->
-							  <xs:sequence>
-							    <!--##########-->
-							    <xs:element name="subscribe" type="xs:string"/>
-								<!--##########-->
+          <xs:complexType>
+            <xs:sequence>
+              <!--##########-->
+              <xs:element name="ID" type="xs:string"/>
+              <!--##########-->
+              <xs:element name="hardwareSetup">
+                <xs:complexType>
+                  <xs:sequence>
+                    <!--##########-->
+                    <xs:element name="platform" type="xs:string"/>
+                    <!--##########-->
+                    <xs:element name="version" type="xs:string"/>
+                    <!--##########-->
+                    <xs:element name="CPU" type="xs:string"/>
+                    <!--##########-->
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <!--##########-->
+              <xs:element name="softwareSetup">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="OS">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <!--##########-->
+                          <xs:element name="name" type="xs:string"/>
+                          <!--##########-->
+                          <xs:element name="version" type="xs:string"/>
+                          <!--##########-->
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <!--##########-->           
+              <xs:element name="networkSetup">
+                <xs:complexType>
+                  <xs:sequence>
+                    <!--##########-->
+                    <xs:element name="MACAddress" type="xs:string"/>
+                    <!--##########-->
+                    <xs:element name="MQTTSetup">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <!--##########-->
+                          <xs:element name="protocolVersion" type="xs:string"/>
+                          <!--##########-->
+                          <xs:element name="credentials">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <!--##########-->
+                                <xs:element name="userName" type="xs:string"/>
+                                <!--##########-->
+                                <xs:element name="password" type="xs:string"/>
+                                <!--##########-->
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <!--##########-->
+                          <xs:element name="topics">
+                            <xs:complexType>
+                              <!--##########-->
+                              <xs:sequence>
+                                <!--##########-->
+                                <xs:element name="subscribe" type="xs:string"/>
+                                <!--##########-->
                                 <xs:element name="publish" type="xs:string"/>
-								<!--##########-->
-				              </xs:sequence>
-				            </xs:complexType>
-						  </xs:element>
-						  <!--##########-->
-				        </xs:sequence>
-				      </xs:complexType>
-			        </xs:element>
-					<!--##########-->
-				  </xs:sequence>
-				</xs:complexType>
-			  </xs:element>
-			  <!--##########-->
-		    </xs:sequence>				
-	      </xs:complexType>
-	    </xs:element>
-		<!--##########-->
+                                <!--##########-->
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                          <!--##########-->
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <!--##########-->
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <!--##########-->
+            </xs:sequence>              
+          </xs:complexType>
+        </xs:element>
+        <!--##########-->
         <xs:element name="nodeLocation">
-	      <xs:complexType>
-		    <xs:sequence>
-			  <!--##########-->
-		      <xs:element name="country" type="xs:string"/>
-			  <!--##########-->
-			  <xs:element name="districtState" type="xs:string"/>
-			  <!--##########-->
-			  <xs:element name="city" type="xs:string"/>
-			  <!--##########-->
-			  <xs:element name="areaDescription" type="xs:string"/>
-			  <!--##########-->
-			  <xs:element name="gpsLongtitude" type="xs:decimal"/>
-			  <!--##########-->
-			  <xs:element name="gpsLattitude" type="xs:decimal"/>
-			  <!--##########-->
-		    </xs:sequence>				
-	      </xs:complexType>
-	    </xs:element>
-		<!--##########-->
+          <xs:complexType>
+            <xs:sequence>
+              <!--##########-->
+              <xs:element name="country" type="xs:string"/>
+              <!--##########-->
+              <xs:element name="districtState" type="xs:string"/>
+              <!--##########-->
+              <xs:element name="city" type="xs:string"/>
+              <!--##########-->
+              <xs:element name="areaDescription" type="xs:string"/>
+              <!--##########-->
+              <xs:element name="gpsLongtitude" type="xs:decimal"/>
+              <!--##########-->
+              <xs:element name="gpsLattitude" type="xs:decimal"/>
+              <!--##########-->
+            </xs:sequence>              
+          </xs:complexType>
+        </xs:element>
+        <!--##########-->
       </xs:sequence>
     </xs:complexType>
   </xs:element>
