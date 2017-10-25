@@ -1,1 +1,1 @@
-Linux server Python software.
+Linux server Python software folder.
