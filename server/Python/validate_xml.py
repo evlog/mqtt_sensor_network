@@ -11,7 +11,7 @@ pip:
 $pip install lxml
 
 Example:
-	$ python validate_xml.py
+    $ python validate_xml.py
 #-------------------------------------------------------------------------------------------------- 
 """
 
@@ -34,7 +34,7 @@ def xml_validator(xml_string, xsd_file_path):
         param1 (str): XML file content.
         param2 (str): XSD schema file path.
     """
-	
+    
     try:
         schema = etree.XMLSchema(file=xsd_file_path)
         parser = objectify.makeparser(schema=schema)
@@ -53,6 +53,6 @@ def main():
 
     # Call the XML validation function
     xml_validator(xml_string, XSD_FILE_PATH)
-	
+    
 if __name__ == "__main__":
     main()
