@@ -4,7 +4,7 @@
     File name: node_config_XML_schema.xsd
     Author: Evangelos Logaras
     Date created: 25/10/2017
-    Date last modified: 25/10/2017
+    Date last modified: 31/10/2017
     
 IoT network node configuration XML schema file.
 -->
@@ -13,6 +13,57 @@ IoT network node configuration XML schema file.
 targetNamespace="https://www.w3schools.com"
 xmlns="https://www.w3schools.com"
 elementFormDefault="qualified">
+
+<!-- Custom XML types -->
+
+  <xs:simpleType name="dataNameType">
+    <xs:restriction base="xs:string">
+	  <xs:enumeration value="indoorTemperatureSensor"/>
+	  <xs:enumeration value="outdoorTemperatureSensor"/>
+	  <xs:enumeration value="indoorHumiditySensor"/>
+	  <xs:enumeration value="outdoorHumiditySensor"/>
+	  <xs:enumeration value="imageCamera"/>
+	  <xs:enumeration value="flameDetectionSensor"/>
+	</xs:restriction>
+  </xs:simpleType>
+
+    <xs:simpleType name="areaType">
+    <xs:restriction base="xs:string">
+	  <xs:enumeration value="indoor"/>
+	  <xs:enumeration value="outdoor"/>
+	</xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="stringList1">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="topicName" type="xs:string"/>      
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="stringList2">
+    <xs:sequence minOccurs="0" maxOccurs="unbounded">
+      <xs:element name="sensor">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="dataName" type="dataNameType"/>
+            <xs:element name="type" type="xs:string"/>
+            <xs:element name="dataType" type="xs:string"/>
+            <xs:element name="dataUnits" type="xs:string"/>
+            <xs:element name="dataRange">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="minValue" type="xs:string"/>
+                  <xs:element name="maxValue" type="xs:string"/>
+                </xs:sequence>  
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>  
+        </xs:complexType>   
+      </xs:element>         
+    </xs:sequence>
+  </xs:complexType>
+  
+<!--<END> Custom XML types -->  
 
   <!--##########-->
   <xs:element name="nodeConfiguration">
@@ -34,6 +85,8 @@ elementFormDefault="qualified">
                     <xs:element name="version" type="xs:string"/>
                     <!--##########-->
                     <xs:element name="CPU" type="xs:string"/>
+                    <!--##########-->
+                    <xs:element name="sensors" type="stringList2"/>
                     <!--##########-->
                   </xs:sequence>
                 </xs:complexType>
@@ -61,7 +114,11 @@ elementFormDefault="qualified">
                 <xs:complexType>
                   <xs:sequence>
                     <!--##########-->
+                    <xs:element name="networkName" type="xs:string"/>
+                    <!--##########-->
                     <xs:element name="MACAddress" type="xs:string"/>
+                    <!--##########-->
+                    <xs:element name="IPAddress" type="xs:string"/>
                     <!--##########-->
                     <xs:element name="MQTTSetup">
                       <xs:complexType>
@@ -86,9 +143,9 @@ elementFormDefault="qualified">
                               <!--##########-->
                               <xs:sequence>
                                 <!--##########-->
-                                <xs:element name="subscribe" type="xs:string"/>
+                                <xs:element name="subscribeList" type="stringList1" />
                                 <!--##########-->
-                                <xs:element name="publish" type="xs:string"/>
+                                <xs:element name="publishList" type="stringList1" />
                                 <!--##########-->
                               </xs:sequence>
                             </xs:complexType>
@@ -117,6 +174,12 @@ elementFormDefault="qualified">
               <xs:element name="city" type="xs:string"/>
               <!--##########-->
               <xs:element name="areaDescription" type="xs:string"/>
+              <!--##########-->
+              <xs:element name="area" type="areaType"/>
+              <!--##########-->
+              <xs:element name="building" type="xs:string"/>
+              <!--##########-->
+              <xs:element name="room" type="xs:string"/>
               <!--##########-->
               <xs:element name="gpsLongtitude" type="xs:decimal"/>
               <!--##########-->
