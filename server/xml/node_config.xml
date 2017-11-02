@@ -4,9 +4,9 @@
     File name: node_config.xml
     Author: Evangelos Logaras
     Date created: 25/10/2017
-    Date last modified: 25/10/2017
+    Date last modified: 31/10/2017
     
-IoT network node configuration XML file.
+IoT network node configuration XML file sample.
 -->
 
 <nodeConfiguration
@@ -20,6 +20,18 @@ xsi:schemaLocation="https://www.w3schools.com/xml/note.xsd">
       <platform>Raspberry</platform>
       <version>Pi3</version>
       <CPU>1.2 GHz 64/32-bit quad-core ARM Cortex-A53</CPU>
+      <sensors>
+        <sensor>
+          <dataName>indoorTemperatureSensor</dataName>
+          <type>DHT11</type>
+          <dataType>float</dataType>
+          <dataUnits>float</dataUnits>
+          <dataRange>
+            <minValue>0</minValue>
+            <maxValue>70</maxValue>
+          </dataRange>
+        </sensor>
+      </sensors>
     </hardwareSetup>
     
     <softwareSetup>
@@ -30,7 +42,9 @@ xsi:schemaLocation="https://www.w3schools.com/xml/note.xsd">
     </softwareSetup>
     
     <networkSetup>
+      <networkName>Karlovasi_IoT_network</networkName>
       <MACAddress>1f:2f:3f:4f:5f:6f</MACAddress>
+      <IPAddress>10.0.0.3</IPAddress>
       <MQTTSetup>
         <protocolVersion>v3.1</protocolVersion>
         <credentials>
@@ -38,8 +52,16 @@ xsi:schemaLocation="https://www.w3schools.com/xml/note.xsd">
           <password>1234#2017</password>
         </credentials>
         <topics>
-          <subscribe>subTopic1,subTopic2,subTopic3</subscribe>
-          <publish>pubTopic1,pubTopic2,pubTopic3</publish>
+          <subscribeList>
+           <topicName>subTopic1</topicName>
+           <topicName>subTopic2</topicName>
+           <topicName>subTopic3</topicName>
+          </subscribeList>
+          <publishList>
+           <topicName>pubTopic1</topicName>
+           <topicName>pubTopic2</topicName>
+           <topicName>pubTopic3</topicName>
+          </publishList>
         </topics>
       </MQTTSetup>
     </networkSetup>
@@ -49,7 +71,10 @@ xsi:schemaLocation="https://www.w3schools.com/xml/note.xsd">
     <country>Greece</country>
     <districtState>Samos</districtState>
     <city>Karlovasi</city>
-    <areaDescription>Aegean University Campus</areaDescription>
+    <areaDescription>AegeanUniversityCampus</areaDescription>
+    <area>indoor</area>
+    <building>A</building>
+    <room>A52</room>
     <gpsLongtitude>26.7049</gpsLongtitude>
     <gpsLattitude>37.79209</gpsLattitude>
   </nodeLocation>
