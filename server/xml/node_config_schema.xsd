@@ -120,6 +120,8 @@ elementFormDefault="qualified">
                     <!--##########-->
                     <xs:element name="IPAddress" type="xs:string"/>
                     <!--##########-->
+                    <xs:element name="serverID" type="xs:string"/>
+                    <!--##########-->
                     <xs:element name="MQTTSetup">
                       <xs:complexType>
                         <xs:sequence>

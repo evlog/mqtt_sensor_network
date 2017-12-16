@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+
+<!--
+    File name: node_config.xml
+    Author: Evangelos Logaras
+    Date created: 25/10/2017
+    Date last modified: 11/12/2017 (By Georgios Vrettos)
+    
+IoT network node configuration XML file sample.
+-->
+
+<nodeConfiguration
+xmlns="https://www.w3schools.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="https://www.w3schools.com/xml/note.xsd">
+
+  <nodeInfo>
+    <ID>CN1</ID>
+    <hardwareSetup>
+      <platform>Raspberry</platform>
+      <version>Pi3</version>
+      <CPU>1.2 GHz 64/32-bit quad-core ARM Cortex-A53</CPU>
+      <sensors>
+        <sensor>
+          <dataName>indoorTemperatureSensor</dataName>
+          <type>DHT11</type>
+          <dataType>float</dataType>
+          <dataUnits>float</dataUnits>
+          <dataRange>
+            <minValue>0</minValue>
+            <maxValue>70</maxValue>
+          </dataRange>
+        </sensor>
+      </sensors>
+    </hardwareSetup>
+    
+    <softwareSetup>
+      <OS>
+        <name>Raspbian GNU/Linux 9.0 (Stretch)</name>
+        <version>9.0</version>
+      </OS>
+    </softwareSetup>
+    
+    <networkSetup>
+      <networkName>Karlovasi_IoT_network</networkName>
+      <MACAddress>1f:2f:3f:4f:5f:6f</MACAddress>
+      <IPAddress>10.0.0.3</IPAddress>
+      <serverID>SN</serverID>
+      <MQTTSetup>
+        <protocolVersion>v3.1</protocolVersion>
+        <credentials>
+          <userName>IoT_thesis</userName>
+          <password>1234#2017</password>
+        </credentials>
+        <topics>
+          <subscribeList>
+           <topicName></topicName>
+           <topicName></topicName>
+           <topicName></topicName>
+          </subscribeList>
+          <publishList>
+           <topicName></topicName>
+           <topicName></topicName>
+           <topicName></topicName>
+          </publishList>
+        </topics>
+      </MQTTSetup>
+    </networkSetup>
+  </nodeInfo>
+
+  <nodeLocation>
+    <country>Greece</country>
+    <districtState>Samos</districtState>
+    <city>Karlovasi</city>
+    <areaDescription>AegeanUniversityCampus</areaDescription>
+    <area>indoor</area>
+    <building>A</building>
+    <room>A52</room>
+    <gpsLongtitude>26.7049</gpsLongtitude>
+    <gpsLattitude>37.79209</gpsLattitude>
+  </nodeLocation>
+  
+    
+</nodeConfiguration>
