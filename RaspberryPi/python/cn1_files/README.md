@@ -1,1 +1,1 @@
-Raspberry Pi client Python software folder.
+Raspberry Pi CN1 Python modules.
