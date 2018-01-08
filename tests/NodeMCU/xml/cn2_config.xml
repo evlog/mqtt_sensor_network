@@ -44,7 +44,7 @@ xsi:schemaLocation="https://www.w3schools.com/xml/note.xsd">
     <networkSetup>
       <networkName>Karlovasi_IoT_network</networkName>
       <MACAddress>9f:8f:7f:6f:5f:4f</MACAddress>
-      <IPAddress>10.0.0.5</IPAddress>
+      <IPAddress>10.0.0.8</IPAddress>
       <serverID>SN</serverID>
       <MQTTSetup>
         <protocolVersion>v3.1</protocolVersion>
