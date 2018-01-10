@@ -2,7 +2,7 @@
     File name: cn1_states.py
     Author: Georgios Vrettos
     Date created: 10/12/2017
-    Date last modified: 16/12/2017
+    Date last modified: 10/1/2018
     Python Version: 2.7
 
 
@@ -83,22 +83,20 @@ class InitialMode(State):
         self.initial_connections(xml_config)
 
         # Infinite loop. This loop repeats itself every time a new message is received.
-        flag = True
-        while flag:
+        while True:
             # Call of mqtt_loop, a method that is used for the network looping porcess.
             self.mqtt.mqtt_loop()
-            flag = False
             print(self.mqtt.message.topic + ": " + self.mqtt.message.payload)
 
-        if (self.mqtt.message.payload.find("SET_CN_MODE, active") != -1):
-            # If the received message contains the phrase above, the client enters active mode.
-            # The current state passes the mqtt connection object to the next state.
-            return ActiveMode(self.mqtt)
-        elif (self.mqtt.message.payload.find("SET_CN_MODE, blocked") != -1):
-            # If the received message contains the phrase above, the client enters blocked mode.
-            # Closing the connection between the invalid node and the broker
-            self.mqtt.disconnect()
-            return BlockedMode()
+            if (self.mqtt.message.payload.find("SET_CN_MODE, active") != -1):
+                # If the received message contains the phrase above, the client enters active mode.
+                # The current state passes the mqtt connection object to the next state.
+                return ActiveMode(self.mqtt)
+            elif (self.mqtt.message.payload.find("SET_CN_MODE, blocked") != -1):
+                # If the received message contains the phrase above, the client enters blocked mode.
+                # Closing the connection between the invalid node and the broker
+                self.mqtt.disconnect()
+                return BlockedMode()
 
     def initial_connections(self,xml_config):
         """initial_connections function. In this function, the program acquires data from the XML
