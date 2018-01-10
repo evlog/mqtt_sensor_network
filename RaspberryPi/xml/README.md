@@ -1,1 +1,1 @@
-Raspberry Pi client XML software folder.
+Raspberry Pi client XML file folder.
