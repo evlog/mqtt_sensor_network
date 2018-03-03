@@ -2,7 +2,7 @@
     File name: sn_db.py
     Author: Georgios Vrettos
     Date created: 11/12/2017
-    Date last modified: 17/12/2017
+    Date last modified: 3/3/2018
     Python Version: 2.7
 
 In this module, functions from the package "psycopg2" are used. 
@@ -122,6 +122,47 @@ class Sn_db:
         row = cur.fetchone()
         # the result is parsed to integer before return.
         return int(row[0])
+
+    def get_node_sev_mode(self,node_id):
+        """get_node_sev_mode function. This function is used 
+        to get the severity mode of a specific node.
+        Args:
+            param1 (conn): The connection instance
+            param2 (str): The ID of the node
+
+        """
+
+        #A cursor for handling the queries is created
+        cur = self.conn.cursor()
+
+        # The selection query
+        query = "SELECT sev_mode FROM nodes WHERE node_id = '" + node_id + "';"
+        # Query execution.
+        cur.execute(query)
+
+        row = cur.fetchone()
+        # The function returns the severity mode of the selected node.
+        return row[0]
+
+    def update_node_column(self,column, data, node_id):
+        """update_node_column function. This function is used 
+        to update a single column of the selected node.
+        Args:
+            param1 (conn): The connection instance
+            param2 (str): The data to be updated on the database
+            param3 (str): The ID of the node
+        """
+
+        #A cursor for handling the queries is created
+        cur = self.conn.cursor()
+        #The final update query
+        query = "UPDATE nodes SET " + column + "='" + data + \
+                "' WHERE node_id = '" + node_id + "';"
+
+        #Query execution and database commit.
+        cur.execute(query)
+        self.conn.commit()
+        print "Node updated successfully"
 
 
 
