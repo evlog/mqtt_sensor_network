@@ -2,7 +2,7 @@
     File name: sn_states.py
     Author: Georgios Vrettos
     Date created: 11/12/2017
-    Date last modified: 17/12/2017
+    Date last modified: 3/3/2018
     Python Version: 2.7
 
 This module contains the server funcitons for connection and message handling.
@@ -137,50 +137,117 @@ class ActiveMode(State):
             param3 (str): The payload of the incomming message.
 
         """
-        if(payload.rfind("PUB_CONFIG_FILE")!=-1):
-            # If the message's payload contains this pattern,
-            # the message contains an XML file for the new client node.
-            xml_start = payload.find('<?xml version="1.0"?>')
-            xml_end = payload.rfind('</nodeConfiguration>')
+        if(topic.rfind("control")!=-1):
+            # If the topic is a control topic
+            if(payload.find("PUB_CONFIG_FILE")!=-1):
+                # If the message's payload contains this pattern,
+                # the message contains an XML file for the new client node.
+                xml_start = payload.find('<?xml version="1.0"?>')
+                xml_end = payload.rfind('</nodeConfiguration>')
 
-            if(xml_start!=-1 and xml_end!=-1):
-                # if the string is an xml file
-                # string trimming is performed to discard uncesessary data.
-                client_config_str = payload[xml_start:xml_end + len('</nodeConfiguration>')]
-                # if the incomming xml file is valid (through xml validation function)
-                if(self.validate_config_file(client_config_str)):
-                    print("Client node valid.")
-                    # the SN publishes to the same topic a set_node_mode active command.
-                    mqtt.publish(topic=topic,payload="SET_CN_MODE, active,"
-                    " parameter2, parameter3", qos=1, retain=False)
-                    # Convert the XML file to JSON
-                    client_config_json = self.xml_to_json(client_config_str)
-                    # Insert/Update node_configuration on database
-                    db = Sn_db()
-                    db.connect_db()
-                    # Upsert function Inserts or Updates the nodes table if the node already exists.
-                    db.upsert_node_db(client_config_json,self.get_local_time())
-                    time.sleep(1)
-                    # After databases update, the SN publishes messages to $SYS topics.
-                    self.active_connections(mqtt,self.server_config_str,client_config_str,db)
-                    # Database connection ends.
-                    db.disconnect_db()
+                if(xml_start!=-1 and xml_end!=-1):
+                    # if the string is an xml file
+                    # string trimming is performed to discard uncesessary data.
+                    client_config_str = payload[xml_start:xml_end + len('</nodeConfiguration>')]
+                    # if the incomming xml file is valid (through xml validation function)
+                    if(self.validate_config_file(client_config_str)):
+                        print("Client node valid.")
+
+                        # Initiating connection with the database.
+                        db = Sn_db()
+                        db.connect_db()
+
+                        # This is the last known severity mode of the current node in the database.
+                        # The mode is retrieved using the node id. The id is extracted from the topic.
+                        last_known_mode = db.get_node_sev_mode(self.find_in_topic(topic,2))
+
+                        # the SN publishes to the same topic a set_node_mode active command and severity mode.
+                        mqtt.publish(topic=topic, payload="SET_CN_FUNCTIONAL_MODE, active," +
+                                            last_known_mode + ", parameter2, parameter3", qos=1, retain=False)
+                        # Convert the XML file to JSON
+                        client_config_json = self.xml_to_json(client_config_str)
+
+                        # Upsert function Inserts or Updates the nodes table if the node already exists.
+                        db.upsert_node_db(client_config_json,self.get_local_time())
+                        time.sleep(1)
+                        # After databases update, the SN publishes messages to $SYS topics.
+                        self.active_connections(mqtt,self.server_config_str,client_config_str,db)
+                        # Database connection ends.
+                        db.disconnect_db()
+                    else:
+                        # if the incomming xml file is invalid (through xml validation function)
+                        print("Client node invalid.")
+                        # the SN publishes to the same topic a set_node_mode blocked command.
+                        mqtt.publish(topic=topic, payload="SET_CN_FUNCTIONAL_MODE, blocked,"
+                        " parameter2, parameter3", qos=1, retain=False)
+
                 else:
-                    # if the incomming xml file is invalid (through xml validation function)
+                    # if the string is not an xml file
                     print("Client node invalid.")
                     # the SN publishes to the same topic a set_node_mode blocked command.
-                    mqtt.publish(topic=topic, payload="SET_CN_MODE, blocked,"
+                    mqtt.publish(topic=topic, payload="SET_CN_FUNCTIONAL_MODE, blocked,"
                     " parameter2, parameter3", qos=1, retain=False)
+            elif(payload.find("PUB_CN_SEVERITY_MODE")!=-1):
+
+                sev_mode = self.find_sev_mode(payload)
+                print(sev_mode)
+                node_id = self.find_in_topic(topic,2)
+                print(node_id)
+
+                db = Sn_db()
+                db.connect_db()
+                # Update column function updates the severity mode of the current node.
+                db.update_node_column("sev_mode",sev_mode,node_id)
+                time.sleep(0.1)
+                db.disconnect_db()
 
             else:
-                # if the string is not an xml file
-                print("Client node invalid.")
-                # the SN publishes to the same topic a set_node_mode blocked command.
-                mqtt.publish(topic=topic, payload="SET_CN_MODE, blocked,"
-                " parameter2, parameter3", qos=1, retain=False)
+                # other kind of control messages are being ignored for now.
+                pass
+
         else:
-            # other kind of messages are ignored for the time being.
-            pass
+            # Other kind of topics
+            print(payload)
+
+
+    def find_sev_mode(self,payload):
+        """find_sev_mode function. This function extracts the severity mode
+        from an incoming message.
+        Args:
+            param1 (str): Message payload.
+
+        """
+        # A severity mode update message has a very specific format that makes it easier to extract data.
+        start = payload.find(",") + 2
+        end = payload.rfind("Mode") + len("Mode")
+        return  payload[start:end]
+
+    def find_in_topic(self,topic,position):
+        """find_in_topic function. This function extracts a specific item from a topic
+        depending on the position of the item.
+        Args:
+            param1 (str): Message topic.
+            param1 (str): Word position on topic.
+
+        """
+
+        # Word extraction from the current topic.
+        i=1
+        start = 0
+        end = topic.find('/')
+        # Depending on the position of the item that we need to extract from the topic
+        # the loop runs to locate the item between two "/".
+        while i < position:
+            start = end + 1
+            if(topic.find('/',end + 1)!=-1):
+                end = topic.find('/',end + 1)
+            else:
+                end = len(topic)
+            i = i + 1
+        # when the desired word indexes are found we extract the final item.
+        word = topic[start:end]
+        return word
+
 
     def xml_to_json(self,xml_str):
         """xml_to_json function. This function converts XML str to JSON str.
