@@ -2,7 +2,7 @@
     File name: sn_states.py
     Author: Georgios Vrettos
     Date created: 11/12/2017
-    Date last modified: 3/3/2018
+    Date last modified: 12/3/2018
     Python Version: 2.7
 
 This module contains the server funcitons for connection and message handling.
@@ -23,6 +23,8 @@ from json import dumps
 from sn_db import Sn_db
 import datetime
 import time
+from sn_thread import Sn_thread
+
 
 
 
@@ -41,6 +43,12 @@ class ActiveMode(State):
     # Class functionality variables.
     # server configuration file in str form.
     server_config_str = ""
+    # the mqtt object
+    mqtt = None
+    # a list that contains all the nodes that publish messages of any kind.
+    connected_nodes = []
+    # a list that works as a message buffer.
+    msg_buffer = []
 
     def __init__(self):
         """ __init__ function. This is the constructor of the current state.
@@ -109,105 +117,211 @@ class ActiveMode(State):
 
         """
         # Object instantiations for the Mqtt Client class.
-        mqtt = SnMqtt()
+        self.mqtt = SnMqtt()
         # Calling the funcition mqtt_connect to initiate the connection to the broker.
-        mqtt.mqtt_connect()
+        self.mqtt.mqtt_connect()
 
         # Inital topic subscriotions.
-        self.initial_connections(mqtt,self.server_config_str)
+        self.initial_connections(self.mqtt,self.server_config_str)
 
         # Infinite loop. This loop repeats itself every time a new message is received.
         flag = True
         while flag:
-            # Call of mqtt_loop, a method that is used for the network looping porcess.
-            mqtt.mqtt_loop()
+            # Call of mqtt_loop, a method that is used for the network looping process.
+            self.mqtt.mqtt_loop()
+
             # This variable saves the latest message that is received.
-            received_message = mqtt.message
-            #print(received_message.topic + ": " + received_message.payload)
-            self.handle_message(mqtt,received_message.topic,received_message.payload)
+            received_message = self.mqtt.message
+
+            if received_message is not None:
+                # If the received message object is not empty
+                # the message is added to a message buffer.
+                self.msg_buffer.append(received_message)
+                # The node id is extracted from the topic
+                node_id = self.find_in_topic(received_message.topic,2)
+                # if the node is not registered as a temporary publisher
+                if node_id not in self.connected_nodes:
+                    print("New node detected")
+                    # the new publisher node is added to a list
+                    self.connected_nodes.append(node_id)
+                    # a new thread is initiated for the specific node
+                    timer_thread = Sn_thread(id=node_id,callback=self.client_timer)
+                    timer_thread.start()
+                # the message object is reset.
+                SnMqtt.message = None
 
 
+    def client_timer(self,id,data):
+        """client_timer function. This function is used as a callback from the thread.
+        It is responsible for gathering all the client's messages and group them by each client.
+        Args:
+            param1 (str): The client id (used also as a thread id).
+            param2 (list): Data input that maybe useful for the function in future implementations).
+        """
+        # This list contains only the messages that are sent by a specific client.
+        cn_data = []
+        # The purpose of this delay, is to halt the message gathering procedure until
+        # all the messages are sent by the client (i.e. three messages in a row)
+        time.sleep(0.8)
+        i=0
+        # the function checks the message buffer and collects only the messages for that specific client.
+        while(i < len(self.msg_buffer)):
+            if(self.find_in_topic(self.msg_buffer[i].topic,2) == id):
+                cn_data.append(self.msg_buffer[i])
+                # Every message is then deleted from the buffer.
+                self.msg_buffer.pop(i)
+
+        # When the process is complete, the client node is removed from the publishers list
+        self.connected_nodes.remove(id)
+        # The remaining message list that contains messages for a specific client only
+        # is then handled by the handle_message function.
+        self.handle_message(self.mqtt,cn_data)
 
 
-    def handle_message(self,mqtt, topic, payload):
+    def handle_message(self,mqtt, cn_messages):
         """handle_message function. This function handles all incomming traffic.
         Args:
             param1 (SnMqtt): The mqtt connection instance.
-            param2 (str): The topic of the incomming message.
-            param3 (str): The payload of the incomming message.
+            param2 (list): A list of messages from a specific client.
 
         """
-        if(topic.rfind("control")!=-1):
-            # If the topic is a control topic
-            if(payload.find("PUB_CONFIG_FILE")!=-1):
-                # If the message's payload contains this pattern,
-                # the message contains an XML file for the new client node.
-                xml_start = payload.find('<?xml version="1.0"?>')
-                xml_end = payload.rfind('</nodeConfiguration>')
 
-                if(xml_start!=-1 and xml_end!=-1):
-                    # if the string is an xml file
-                    # string trimming is performed to discard uncesessary data.
-                    client_config_str = payload[xml_start:xml_end + len('</nodeConfiguration>')]
-                    # if the incomming xml file is valid (through xml validation function)
-                    if(self.validate_config_file(client_config_str)):
-                        print("Client node valid.")
+        print("Client's messages:")
+        print(cn_messages)
 
-                        # Initiating connection with the database.
-                        db = Sn_db()
-                        db.connect_db()
+        for msg in cn_messages:
+            topic = msg.topic
+            payload = msg.payload
+            if(topic.rfind("control")!=-1):
+                # If the topic is a control topic
+                if(payload.find("PUB_CONFIG_FILE")!=-1):
+                    # If the message's payload contains this pattern,
+                    # the message contains an XML file for the new client node.
+                    xml_start = payload.find('<?xml version="1.0"?>')
+                    xml_end = payload.rfind('</nodeConfiguration>')
 
-                        # This is the last known severity mode of the current node in the database.
-                        # The mode is retrieved using the node id. The id is extracted from the topic.
-                        last_known_mode = db.get_node_sev_mode(self.find_in_topic(topic,2))
+                    if(xml_start!=-1 and xml_end!=-1):
+                        # if the string is an xml file
+                        # string trimming is performed to discard uncesessary data.
+                        client_config_str = payload[xml_start:xml_end + len('</nodeConfiguration>')]
+                        # if the incomming xml file is valid (through xml validation function)
+                        if(self.validate_config_file(client_config_str)):
+                            print("Client node valid.")
 
-                        # the SN publishes to the same topic a set_node_mode active command and severity mode.
-                        mqtt.publish(topic=topic, payload="SET_CN_FUNCTIONAL_MODE, active," +
-                                            last_known_mode + ", parameter2, parameter3", qos=1, retain=False)
-                        # Convert the XML file to JSON
-                        client_config_json = self.xml_to_json(client_config_str)
+                            # Initiating connection with the database.
+                            db = Sn_db()
+                            db.connect_db()
 
-                        # Upsert function Inserts or Updates the nodes table if the node already exists.
-                        db.upsert_node_db(client_config_json,self.get_local_time())
-                        time.sleep(1)
-                        # After databases update, the SN publishes messages to $SYS topics.
-                        self.active_connections(mqtt,self.server_config_str,client_config_str,db)
-                        # Database connection ends.
-                        db.disconnect_db()
+                            # This is the last known severity mode of the current node in the database.
+                            # The mode is retrieved using the node id. The id is extracted from the topic.
+                            last_known_mode = db.get_node_sev_mode(self.find_in_topic(topic,2))
+
+                            # the SN publishes to the same topic a set_node_mode active command and severity mode.
+                            mqtt.publish(topic=topic, payload="SET_CN_FUNCTIONAL_MODE, active," +
+                                                last_known_mode + ", parameter2, parameter3", qos=1, retain=False)
+                            # Convert the XML file to JSON
+                            client_config_json = self.xml_to_json(client_config_str)
+
+                            # Upsert function Inserts or Updates the nodes table if the node already exists.
+                            db.upsert_node_db(client_config_json,self.get_local_time())
+                            time.sleep(1)
+                            # After databases update, the SN publishes messages to $SYS topics.
+                            self.active_connections(mqtt,self.server_config_str,client_config_str,db)
+                            # Database connection ends.
+                            db.disconnect_db()
+                        else:
+                            # if the incomming xml file is invalid (through xml validation function)
+                            print("Client node invalid.")
+                            # the SN publishes to the same topic a set_node_mode blocked command.
+                            mqtt.publish(topic=topic, payload="SET_CN_FUNCTIONAL_MODE, blocked,"
+                            " parameter2, parameter3", qos=1, retain=False)
+
                     else:
-                        # if the incomming xml file is invalid (through xml validation function)
+                        # if the string is not an xml file
                         print("Client node invalid.")
                         # the SN publishes to the same topic a set_node_mode blocked command.
                         mqtt.publish(topic=topic, payload="SET_CN_FUNCTIONAL_MODE, blocked,"
                         " parameter2, parameter3", qos=1, retain=False)
+                elif(payload.find("PUB_CN_SEVERITY_MODE")!=-1):
+
+                    sev_mode = self.find_sev_mode(payload)
+                    print(sev_mode)
+                    node_id = self.find_in_topic(topic,2)
+                    print(node_id)
+
+                    db = Sn_db()
+                    db.connect_db()
+                    # Update column function updates the severity mode of the current node.
+                    db.update_node_column("sev_mode",sev_mode,node_id)
+                    time.sleep(0.1)
+                    db.disconnect_db()
 
                 else:
-                    # if the string is not an xml file
-                    print("Client node invalid.")
-                    # the SN publishes to the same topic a set_node_mode blocked command.
-                    mqtt.publish(topic=topic, payload="SET_CN_FUNCTIONAL_MODE, blocked,"
-                    " parameter2, parameter3", qos=1, retain=False)
-            elif(payload.find("PUB_CN_SEVERITY_MODE")!=-1):
+                    # other kind of control messages are being ignored for now.
+                    pass
 
-                sev_mode = self.find_sev_mode(payload)
-                print(sev_mode)
-                node_id = self.find_in_topic(topic,2)
-                print(node_id)
+            elif(topic.rfind("Sensor")!=-1):
+                # if the topic of a message contains the word Sensor
+                # another thread is executed in order to handle the sensor data
+                # As an input, the whole message list is being processed
+                db_thread = Sn_thread(self.find_in_topic(topic,2),cn_messages,self.save_sensor_data)
+                db_thread.start()
+                break
 
-                db = Sn_db()
-                db.connect_db()
-                # Update column function updates the severity mode of the current node.
-                db.update_node_column("sev_mode",sev_mode,node_id)
-                time.sleep(0.1)
-                db.disconnect_db()
 
-            else:
-                # other kind of control messages are being ignored for now.
-                pass
 
-        else:
-            # Other kind of topics
-            print(payload)
+
+    def save_sensor_data(self,node_id,data):
+        """save_sensor_data function. This function saves the sensor data
+        from a specific client to the database.
+        Args:
+            param1 (str): The node id.
+            param2 (list): A list of messages from a specific client.
+
+        """
+
+        # the data table is processed for content extraction
+        # the process returns a dictionary object.
+        data = self.find_data_values(data)
+
+        # Initiating connection with the database.
+        db = Sn_db()
+        db.connect_db()
+        # the data is being inserted to a specific table in the database.
+        db.insert_client_data(node_id,"cn2_data",data)
+        time.sleep(0.3)
+        db.disconnect_db()
+
+    def find_data_values(self,data):
+        """find_data_values function. This function extracts the data from every message
+        in the list, and it returns a key:value dictionary.
+        Args:
+            param1 (list): A list of messages from a specific client.
+
+        """
+
+        # The dictionary is initialized with default values.
+        extracted_data = {'temp_type': '-', 'temp_range': '-', 'temperature': '-1',
+                          'hum_type': '-', 'humidity': '-1', 'hum_range': '-',
+                          'flame_type': '-', 'flame': '-1', 'flame_range': '-'}
+
+        for msg in data:
+            # for every message in the list data extraction is performed.
+            if(msg.topic.rfind("Temperature")!=-1):
+                extracted_data['temp_type'] = self.find_in_payload(msg.payload, 1)
+                extracted_data['temp_range'] = self.find_in_payload(msg.payload, 2)
+                extracted_data['temperature'] = self.find_in_payload(msg.payload,3)
+            elif(msg.topic.rfind("Humidity")!=-1):
+                extracted_data['hum_type'] = self.find_in_payload(msg.payload, 1)
+                extracted_data['hum_range'] = self.find_in_payload(msg.payload, 2)
+                extracted_data['humidity'] = self.find_in_payload(msg.payload,3)
+            elif(msg.topic.rfind("Flame")!=-1):
+                extracted_data['flame_type'] = self.find_in_payload(msg.payload, 1)
+                extracted_data['flame_range'] = self.find_in_payload(msg.payload, 2)
+                extracted_data['flame'] = self.find_in_payload(msg.payload,3)
+
+
+        return extracted_data
 
 
     def find_sev_mode(self,payload):
@@ -221,6 +335,32 @@ class ActiveMode(State):
         start = payload.find(",") + 2
         end = payload.rfind("Mode") + len("Mode")
         return  payload[start:end]
+
+    def find_in_payload(self,payload,position):
+        """find_in_topic function. This function extracts a specific item from a data message
+        depending on the position of the item.
+        Args:
+            param1 (str): Message payload.
+            param1 (str): Word position on topic.
+
+        """
+
+        # Word extraction from the current topic.
+        i=1
+        start = 0
+        end = payload.find(',')
+        # Depending on the position of the item that we need to extract from the topic
+        # the loop runs to locate the item between two "/".
+        while i < position:
+            start = end + 1
+            if(payload.find(',',end + 1)!=-1):
+                end = payload.find(',',end + 1)
+            else:
+                end = len(payload)
+            i = i + 1
+        # when the desired word indexes are found we extract the final item.
+        return payload[start:end]
+
 
     def find_in_topic(self,topic,position):
         """find_in_topic function. This function extracts a specific item from a topic
@@ -245,8 +385,7 @@ class ActiveMode(State):
                 end = len(topic)
             i = i + 1
         # when the desired word indexes are found we extract the final item.
-        word = topic[start:end]
-        return word
+        return topic[start:end]
 
 
     def xml_to_json(self,xml_str):
@@ -290,12 +429,16 @@ class ActiveMode(State):
         # The extracted data forms the final control topic.
         client_control_topic = networkName + "/+/" + country + "/" + districtState + "/" +\
         city + "/" + areaDescription + "/" + area + "/" + building + "/" + room + "/control";
-        #print (client_control_topic)
-        # The SN subscribes to the client control topic and waits for incomming client
-        # configuration files.
+
+        # The extracted data forms the final sensor data topic.
+        sensor_data_topic = networkName + "/+/" + country + "/" + districtState + "/" +\
+        city + "/" + areaDescription + "/" + area + "/" + building + "/" + room + "/+";
+
+        # The SN subscribes to the client control and sensor data topics and waits for incomming client
+        # configuration files or sensor data.
         mqtt.subscribe(topic=client_control_topic, qos=1)
-
-
+        mqtt.subscribe(topic=sensor_data_topic, qos=1)
+        mqtt.subscribe(topic="test/node", qos=1,)
 
     def active_connections(self,mqtt,server_xml_config,client_xml_config,db_connection):
         """active_connections function. In this function, 
