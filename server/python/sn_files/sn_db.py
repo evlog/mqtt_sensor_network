@@ -2,7 +2,7 @@
     File name: sn_db.py
     Author: Georgios Vrettos
     Date created: 11/12/2017
-    Date last modified: 3/3/2018
+    Date last modified: 12/3/2018
     Python Version: 2.7
 
 In this module, functions from the package "psycopg2" are used. 
@@ -80,6 +80,43 @@ class Sn_db:
         print "Record inserted successfully"
         # After data insertion, the server saves all node configurations on a JSON file.
         self.backup_node_config();
+
+    def insert_client_data(self,node_id,table,data):
+        """insert_client_data function. This function is used 
+        to insert data from a specific client to the database.
+        Args:
+            param1 (conn): The connection instance
+            param2 (str): The node id.
+            param3 (str): The table name.
+            param4 (dict): The data to be inserted into the database.
+        """
+
+
+        print("Data to be inserted into DB:")
+        print(data)
+
+        #A cursor for handling the queries is created
+        cur = self.conn.cursor()
+
+
+        # Depending on the table name, the data is inserted accordingly
+        if(table == "cn1_data"):
+            pass
+
+        elif(table == "cn2_data"):
+            # The insertion query
+            query = "INSERT INTO " + table + " (node_id, temperature, temp_type, temp_range," \
+                    " humidity, hum_type, hum_range, flame, flame_type," \
+                    "flame_range) VALUES ('" + node_id + "','" + data['temperature'] +\
+                    "','"+ data['temp_type'] +"','" + data['temp_range'] + "','" + data['humidity'] +\
+                    "','"+ data['hum_type'] +"','" + data['hum_range'] + "','" + data['flame'] +\
+                    "','"+ data['flame_type'] +"','" + data['flame_range'] + "');"
+
+
+        #Query execution and database commit.
+        cur.execute(query)
+        self.conn.commit()
+        print "Record inserted successfully"
 
 
     def get_node_status(self,node_id):
