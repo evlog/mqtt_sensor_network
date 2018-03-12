@@ -2,7 +2,7 @@
     File name: sn_mqtt.py
     Author: Georgios Vrettos
     Date created: 11/12/2017
-    Date last modified: 16/12/2017
+    Date last modified: 12/3/2018
     Python Version: 2.7
 
 In this module, functions from the package "paho-mqtt" are used. 
@@ -34,45 +34,8 @@ class SnMqtt(mqtt.Client):
 
     # Class functionality variables.
 
-    #Signals the mqtt_function when a message is received.
-    loop_flag = 1
-    #The variable that holds the message.
-    message = "null"
-
-    '''def format_message(self,topic, message): +++++++++++++++++++++++++++++++++++++++++++++++
-        """format_message function. This function is used 
-            in order to form the message into a valid JSON record.
-        Args:
-            param1 (str): Topic acquired from the mqtt message
-            param2 (str): message content
-        """
-
-        # String selections and reductions are performed
-        # to form the message into a JSON record
-        ind = topic.find("/", 8)
-        client = topic[8:ind]
-        ind = message.find(",")
-        rind = message.rfind(",")
-        field1 = message[1:ind]
-        field2 = message[ind + 1:rind]
-        field3 = message[rind + 1:len(message) - 1]
-
-        # Get the local timestamp using functions from the time package.
-        current_time = time.asctime(time.localtime(time.time()))
-
-        # Printing the final values for debugging purposes
-        print('Timestamp: ') + current_time
-        print('Client Name: ') + client
-        print('Topic Name: ') + topic
-        print('Message: ') + message
-
-        # This is the final String that is going to be inserted into the database JSON file.
-        record = '{"timestamp":"' + current_time \
-                 + '", "client":"' + client + '", "topic":"' + topic\
-                 + '","field1":"' + field1 + '","field2":"' + field2 \
-                 + '","field3":"' + field3 + '"}'
-        return record
-    '''
+    #The variable that holds the last message on the broker's buffer.
+    message = None
 
     def on_connect(self,mqttc, userdata, flags, rc):
         """on_connect callback function. 
@@ -81,8 +44,7 @@ class SnMqtt(mqtt.Client):
             param1 (Client): The client instance.
             param2 (str): User defined data that is defined on Client().
             param3 (dict): The response flags from the broker.
-            param4 (int): The result of the connection. 
-            It indicates the connection status with a code (1-5)
+            param4 (int): The result of the connection. It indicates the connection status with a code (1-5)
         """
 
         print('SN connected. Return code=' + str(rc))
@@ -106,14 +68,11 @@ class SnMqtt(mqtt.Client):
             param2 (str): User defined data that is defined on Client().
             param3 (MQTTMessage): An instance of MQTTMessage, contains topic,payload,qos,retain
         """
-
         print('Message arrived...')
         # In the event of a message arrival, message content
         #is saved to the message variable
         SnMqtt.message = msg
 
-        #The loop flag becomes '0' and signals the mqtt_loop function to end.
-        SnMqtt.loop_flag = 0
 
     def on_publish(self,mqttc, userdata, mid):
         """on_publish callback function. 
@@ -126,6 +85,7 @@ class SnMqtt(mqtt.Client):
         """
         print('Published message.')
         #print("mid: " + str(mid))
+
 
 
     def on_subscribe(self,mqttc, userdata, mid, granted_qos):
@@ -141,7 +101,7 @@ class SnMqtt(mqtt.Client):
         """
         print('subscribed (qos=' + str(granted_qos) + ')')
 
-    def on_unsubscribe(self,mqttc, userdata, mid, granted_qos):
+    def on_unsubscribe(self,mqttc, mid, granted_qos):
         """on_unsubscribe callback function. This function is executed
         when the client unsubscribes successfully from a topic.
         Args:
@@ -173,6 +133,7 @@ class SnMqtt(mqtt.Client):
             # if the connection fails...
             print("Connection failed.")
 
+
     def mqtt_loop(self):
         """mqtt_loop function. This function is used for the MQTT network loop.
         The incoming message is saved from the mqtt buffer after the execution of
@@ -183,12 +144,22 @@ class SnMqtt(mqtt.Client):
 
         # Starting the loop
         self.loop_start()
-        # The loop continues as long as there are no incomming messages.
-        # It keeps the connection alive, waiting for messages.
-        while SnMqtt.loop_flag == 1:
-            time.sleep(.01)
-        # When a new message arrives, the loop breaks in order to handle the message
+        time.sleep(0.001)
         self.loop_stop()
-        # Flag resets back to 1 for the new loop.
-        SnMqtt.loop_flag = 1
+        # Everytime the loop ends, the last message is aqcuired from the broker's buffer.
+
+
+    def msg_test(self):
+        """msg_test function. This function is only used for testing purposes.
+         We test the server's maximum capacity of incoming messages.
+        """
+
+        # using a loop, we send dummy messages to test the minimum delay
+        #  between an incomming message message.
+        i=0
+        while True:
+            self.publish("test/node",str(i),1,False)
+            i=i+1
+            time.sleep(0.095)
+
 
