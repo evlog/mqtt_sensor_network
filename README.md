@@ -1,4 +1,4 @@
-In this project we created a small scale network application combining different hw devices on the same software core. Our alert-based sensor system utilizes the MQTT protocol with TLS encryption to share data between three network nodes a) An ESP8266 b) a Raspberry Pi c) a PC Server. We focus on the formalization of the protocol’s basic elements by strictly defining the topic/message scheme. On this repository we include the software used for the nodes as well as other necessary files for each platform. We also define the settings for every node using XML configuration files based on a [XML schema](https://github.com/evlog/mqtt_sensor_network/blob/master/server/xml/node_config_schema.xsd).  
+In this project we created a small scale network application combining different hw devices on the same software core. Our alert-based sensor system utilizes the MQTT protocol with TLS encryption to share data between three network nodes a) An ESP8266 b) a Raspberry Pi c) a PC Server. We focus on the formalization of the protocol’s basic elements by strictly defining the topic/message scheme. On this repository we include the software used for the nodes as well as other necessary files for each platform. 
 
 Repository content
 --------
@@ -18,6 +18,8 @@ As a programing platform we used Python 2.7 for the Raspberry Pi and the Server 
 XML node configuration file content
 --------
 
+We define the settings for every node using XML configuration files based on this [XML schema](https://github.com/evlog/mqtt_sensor_network/blob/master/server/xml/node_config_schema.xsd). An XML schema tree diagram is available [here](https://github.com/evlog/mqtt_sensor_network/blob/master/server/xml/node_config_schema.svg). The most important schema elements are listed below:
+
 *  Geolocation information
 *  Type of hardware and attached sensors
 *  Type of software and OS
@@ -28,12 +30,12 @@ XML node configuration file content
 Server node
 --------
 
-<img src="https://github.com/evlog/mqtt_sensor_network/blob/master/readme_files/sn_state_diagram.png"/>
+<img src="https://github.com/evlog/mqtt_sensor_network/blob/master/readme_files/sn_state_diagram.png" />
 
 Client nodes
 --------
 
-<img src="https://github.com/evlog/mqtt_sensor_network/blob/master/readme_files/cn2_state_diagram.png"/>
+<img src="https://github.com/evlog/mqtt_sensor_network/blob/master/readme_files/cn2_state_diagram.png" />
 
 
 
