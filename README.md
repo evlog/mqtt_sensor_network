@@ -28,12 +28,12 @@ XML node configuration file content
 Server node
 --------
 
-<img src="https://github.com/evlog/mqtt_sensor_network/blob/master/readme_files/sn_state_diagram.png" width="256" />
+<img src="https://github.com/evlog/mqtt_sensor_network/blob/master/readme_files/sn_state_diagram.png" width="737" />
 
 Client nodes
 --------
 
-<img src="https://github.com/evlog/mqtt_sensor_network/blob/master/readme_files/cn2_state_diagram.png" width="256" />
+<img src="https://github.com/evlog/mqtt_sensor_network/blob/master/readme_files/cn2_state_diagram.png" width="737" />
 
 
 
