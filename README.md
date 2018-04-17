@@ -49,8 +49,8 @@ The Project
  
 This project is part of a research program that takes place on the University of the Aegean focusing on a small scale Internet of Things network. Main contributors are listed below:
 
-Evangelos Logaras  -  evangelos.logaras@infineon.com
-Georgios Vrettos  -  gvrettos@aegean.gr
+Evangelos Logaras  -  evangelos.logaras@infineon.com  
+Georgios Vrettos  -  gvrettos@aegean.gr  
 Emmanouil Kalligeros  -  kalliger@aegean.gr
 
 
