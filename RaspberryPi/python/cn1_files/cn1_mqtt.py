@@ -21,9 +21,9 @@ import ssl
 # Global variables
 # --------------------------------------------------------------------------------------------------
 CA_CERT_PATH = "/home/vrettel/Dropbox/Thesis/Code/RaspberryPi/cn1_files/ca.crt"
-BROKER_USERNAME = "IoT_thesis"
-BROKER_PASSWORD = "1234#2017"
-BROKER_IP = "195.251.166.202"
+BROKER_USERNAME = "username"
+BROKER_PASSWORD = "password"
+BROKER_IP = "ip_address"
 BROKER_PORT = "8883"
 
 # --------------------------------------------------------------------------------------------------
