@@ -47,7 +47,8 @@ Client nodes also work as state machines. After their connection/validation atte
 The Project
 --------
  
-This project is part of a research program that takes place at the University of the Aegean, based in the island of Samos (city of Karlovasi) in Greece, focusing on a small scale Internet of Things network. Main contributors are listed below:
+This project is part of a research program that takes place at the University of the Aegean (Department of Information 
+& Communication Systems Engineering), based in the island of Samos (city of Karlovasi) in Greece, focusing on a small scale Internet of Things network. Main contributors are listed below:
 
 Evangelos Logaras  -  evangelos.logaras@infineon.com  
 Georgios Vrettos  -  gvrettos@aegean.gr  
