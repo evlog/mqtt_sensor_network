@@ -56,7 +56,7 @@ Emmanouil Kalligeros  -  kalliger@aegean.gr
 
 Publications
 --------
-G. Vrettos, E. Logaras, and E. Kalligeros, "Towards standardization of MQTT-alert-based sensor networks: protocol structures formalization and low-end node security", in Proc. of IEEE International Symposium on Industrial Embedded Systems (SIES), June 2018.
+G. Vrettos, E. Logaras, and E. Kalligeros, "Towards standardization of MQTT-alert-based sensor networks: protocol structures formalization and low-end node security", in *Proc. of IEEE International Symposium on Industrial Embedded Systems (SIES)*, June 2018.
 
 
 
